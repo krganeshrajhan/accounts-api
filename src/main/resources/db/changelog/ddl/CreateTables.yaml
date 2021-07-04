@@ -39,6 +39,21 @@ databaseChangeLog:
                   constraints:
                     nullable: false
               - column:
+                  name: BALANCE_DATE
+                  type: date
+                  constraints:
+                    nullable: false
+              - column:
+                  name: CURRENCY
+                  type: varchar(4)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: AVAILABLE_BALANCE
+                  type: double
+                  constraints:
+                    nullable: false
+              - column:
                   name: USER_ID
                   type: varchar(200)
                   constraints:

@@ -5,6 +5,8 @@ import lombok.*;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.io.Serializable;
+import java.time.LocalDate;
 
 @Entity
 @Getter
@@ -14,7 +16,7 @@ import javax.validation.constraints.Size;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class Account {
+public class Account implements Serializable {
 
     @Id
     @Column(name = "ACCOUNT_NUMBER", nullable = false, length = 200)
@@ -31,6 +33,15 @@ public class Account {
     @NotNull
     @Size(min = 1, max= 50)
     private String accountType;
+
+    @Column(name = "BALANCE_DATE", nullable = false)
+    private LocalDate balanceDate;
+
+    @Column(name = "CURRENCY", nullable = false)
+    private String currency;
+
+    @Column(name = "AVAILABLE_BALANCE", nullable = false)
+    private double availableBalance;
 
     @JoinColumn(name = "USER_ID", referencedColumnName = "ID", nullable = false)
     @ManyToOne(optional = false)

@@ -1,7 +1,10 @@
 package com.anz.accounts.service;
 
+import com.anz.accounts.dto.AccountDto;
 import com.anz.accounts.dto.ApiResponseDto;
+import com.anz.accounts.dto.TransactionDto;
 import com.anz.accounts.exception.AccountsException;
+import com.anz.accounts.mapper.AccountsMapper;
 import com.anz.accounts.model.Account;
 import com.anz.accounts.model.Transaction;
 import com.anz.accounts.model.User;
@@ -13,6 +16,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.time.LocalDate;
@@ -37,15 +43,20 @@ public class AccountServiceTest {
     @MockBean
     private UserRepository userRepository;
 
+    @MockBean
+    private AccountsMapper mapper;
+
     @Autowired
     private AccountService accountService;
 
     @Test
     public void givenInvalidUserIdRetrieveAccountsThrowException() {
-        when(accountRepository.findAllByUser(User.builder().userId("1").build())).thenReturn(new ArrayList<>());
+        Page page = new PageImpl<List<Account>>(new ArrayList<>());
+        when(accountRepository.findAllByUser(User.builder().userId("1").build(), PageRequest.of(0, 2)))
+                .thenReturn(page);
         when(userRepository.findById("1")).thenReturn(Optional.empty());
         assertThrows(AccountsException.class, () -> {
-            accountService.findAccountsByUserId("1");
+            accountService.findAccountsByUserId("1",0, 2);
         });
     }
 
@@ -53,24 +64,38 @@ public class AccountServiceTest {
     public void givenValidUserIdRetrieveAccounts() throws AccountsException {
         User user = User.builder().userId("1").userName("user").build();
         ArrayList<Account> accounts = new ArrayList<>();
-        accounts.add(Account.builder().accountNumber("123456").accountName("SGDEBITAC").accountType("Savings")
-                .user(user).build());
+        Account account1 = Account.builder().accountNumber("123456").accountName("SGDEBITAC").accountType("Savings")
+                .balanceDate(LocalDate.of(2021,07,04)).currency("SGD").availableBalance(345.6).user(user).build();
+        accounts.add(account1);
         accounts.add(Account.builder().accountNumber("123523").accountName("SGCREDITAC").accountType("Current")
                 .user(user).build());
-        when(accountRepository.findAllByUser(user)).thenReturn(accounts);
+        when(accountRepository.findAllByUser(user, PageRequest.of(0, 2)))
+                .thenReturn(new PageImpl(accounts));
         when(userRepository.findById("1")).thenReturn(Optional.of(user));
-        ApiResponseDto<List<Account>> responseDto = accountService.findAccountsByUserId("1");
-        List<Account> accountList = responseDto.getData();
+        List<AccountDto> accountDtos = new ArrayList<>();
+        accountDtos.add(AccountDto.builder().accountNumber("123456").accountName("SGDEBITAC").accountType("Savings")
+                .balanceDate("04/07/2021").currency("SGD").openingAvailableBalance(345.6).build());
+        accountDtos.add(AccountDto.builder().accountNumber("123523").accountName("SGCREDITAC").accountType("Current").build());
+        when(mapper.entitiesToDtos(accounts)).thenReturn(accountDtos);
+        ApiResponseDto<List<AccountDto>> responseDto = accountService.findAccountsByUserId("1", 0, 2);
+        assertEquals("200", responseDto.getMeta().getCode());
+        assertEquals("success", responseDto.getMeta().getMessage());
+        assertEquals(1, responseDto.getMeta().getTotalPages());
+        assertEquals(2, responseDto.getMeta().getTotalItems());
+        List<AccountDto> accountList = responseDtPRIVATE_MEMBERo.getData();
         assertEquals(2, accountList.size());
         assertEquals("123456", accountList.get(0).getAccountNumber());
         assertEquals("SGDEBITAC", accountList.get(0).getAccountName());
         assertEquals("Savings", accountList.get(0).getAccountType());
+        assertEquals("04/07/2021", accountList.get(0).getBalanceDate());
+        assertEquals("SGD", accountList.get(0).getCurrency());
+        assertEquals(345.6, accountList.get(0).getOpeningAvailableBalance());
     }
 
     @Test
     public void givenInvalidAccountIdRetrieveTransactionsThrowsException() {
         assertThrows(AccountsException.class, () -> {
-           accountService.findTransactionsByAccountNumber("123456");
+           accountService.findTransactionsByAccountNumber("123456",0, 2);
         });
     }
 
@@ -89,12 +114,24 @@ public class AccountServiceTest {
         accounts.add(account3);
         ArrayList<Transaction> transactions = new ArrayList<>();
         transactions.add(Transaction.builder().id("1").debitAccount(account1).creditAccount(account2)
-                .transactionType("Debit").valueDate(LocalDate.now()).amount(20.56).build());
+                .transactionType("Debit").valueDate(LocalDate.of(2021,07,04)).amount(20.56).build());
         transactions.add(Transaction.builder().id("2").debitAccount(account2).creditAccount(account3)
-                .transactionType("Debit").valueDate(LocalDate.now()).amount(20.56).build());
+                .transactionType("Debit").valueDate(LocalDate.of(2021,07,04)).amount(20.56).build());
         when(accountRepository.findById("123456")).thenReturn(Optional.of(account2));
-        when(transactionRepository.findAllByCreditAccountOrDebitAccount(account2, account2)).thenReturn(transactions);
-        ApiResponseDto<List<Transaction>> transactionList = accountService.findTransactionsByAccountNumber("123456");
+        when(transactionRepository.findAllByCreditAccountOrDebitAccount(account2, account2, PageRequest.of(0, 2))).thenReturn(new PageImpl<>(transactions));
+        List<TransactionDto> transactionDtos = new ArrayList<>();
+        transactionDtos.add(TransactionDto.builder().accountNumber(account2.getAccountNumber())
+                .accountName(account2.getAccountNumber()).creditAmount(20.56).debitAmount(0).currency("SGD")
+                .valueDate("Jul, 04, 2021").type("Credit").build());
+        transactionDtos.add(TransactionDto.builder().accountNumber(account2.getAccountNumber())
+                .accountName(account2.getAccountNumber()).debitAmount(20.56).creditAmount(0).currency("SGD")
+                .valueDate("Jul, 04, 2021").type("Credit").build());
+        when(mapper.transactionEntitiesToDtos(transactions, account2)).thenReturn(transactionDtos);
+        ApiResponseDto<List<TransactionDto>> transactionList = accountService.findTransactionsByAccountNumber("123456",0, 2);
+        assertEquals("200", transactionList.getMeta().getCode());
+        assertEquals("success", transactionList.getMeta().getMessage());
+        assertEquals(1, transactionList.getMeta().getTotalPages());
+        assertEquals(2, transactionList.getMeta().getTotalItems());
         assertEquals(2, transactionList.getData().size());
     }
 
