@@ -82,7 +82,7 @@ public class AccountServiceTest {
         assertEquals("success", responseDto.getMeta().getMessage());
         assertEquals(1, responseDto.getMeta().getTotalPages());
         assertEquals(2, responseDto.getMeta().getTotalItems());
-        List<AccountDto> accountList = responseDtPRIVATE_MEMBERo.getData();
+        List<AccountDto> accountList = responseDto.getData();
         assertEquals(2, accountList.size());
         assertEquals("123456", accountList.get(0).getAccountNumber());
         assertEquals("SGDEBITAC", accountList.get(0).getAccountName());
