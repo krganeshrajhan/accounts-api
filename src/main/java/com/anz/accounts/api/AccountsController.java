@@ -1,5 +1,6 @@
 package com.anz.accounts.api;
 
+import com.anz.accounts.dto.ApiResponseDto;
 import com.anz.accounts.exception.AccountsException;
 import com.anz.accounts.model.Account;
 import com.anz.accounts.model.Transaction;
@@ -20,12 +21,12 @@ public class AccountsController {
     private AccountService accountService;
 
     @GetMapping(value = "/accounts/{userId}", produces = APPLICATION_JSON_VALUE)
-    public List<Account> findAccountsByUserId(@PathVariable(value = "userId", required = true) String userId) throws AccountsException {
+    public ApiResponseDto<List<Account>> findAccountsByUserId(@PathVariable(value = "userId", required = true) String userId) throws AccountsException {
         return accountService.findAccountsByUserId(userId);
     }
 
     @GetMapping(value = "/transactions/{accountNumber}", produces = APPLICATION_JSON_VALUE)
-    public List<Transaction> findTransactionsByAccountNumber(@PathVariable("accountNumber") String accountNumber) throws AccountsException {
+    public ApiResponseDto<List<Transaction>> findTransactionsByAccountNumber(@PathVariable("accountNumber") String accountNumber) throws AccountsException {
         return accountService.findTransactionsByAccountNumber(accountNumber);
     }
 }

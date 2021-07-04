@@ -1,5 +1,6 @@
 package com.anz.accounts.service;
 
+import com.anz.accounts.dto.ApiResponseDto;
 import com.anz.accounts.exception.AccountsException;
 import com.anz.accounts.model.Account;
 import com.anz.accounts.model.Transaction;
@@ -58,7 +59,8 @@ public class AccountServiceTest {
                 .user(user).build());
         when(accountRepository.findAllByUser(user)).thenReturn(accounts);
         when(userRepository.findById("1")).thenReturn(Optional.of(user));
-        List<Account> accountList = accountService.findAccountsByUserId("1");
+        ApiResponseDto<List<Account>> responseDto = accountService.findAccountsByUserId("1");
+        List<Account> accountList = responseDto.getData();
         assertEquals(2, accountList.size());
         assertEquals("123456", accountList.get(0).getAccountNumber());
         assertEquals("SGDEBITAC", accountList.get(0).getAccountName());
@@ -92,8 +94,8 @@ public class AccountServiceTest {
                 .transactionType("Debit").valueDate(LocalDate.now()).amount(20.56).build());
         when(accountRepository.findById("123456")).thenReturn(Optional.of(account2));
         when(transactionRepository.findAllByCreditAccountOrDebitAccount(account2, account2)).thenReturn(transactions);
-        List<Transaction> transactionList = accountService.findTransactionsByAccountNumber("123456");
-        assertEquals(2, transactionList.size());
+        ApiResponseDto<List<Transaction>> transactionList = accountService.findTransactionsByAccountNumber("123456");
+        assertEquals(2, transactionList.getData().size());
     }
 
 }
