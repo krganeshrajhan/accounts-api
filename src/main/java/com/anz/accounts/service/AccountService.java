@@ -30,17 +30,17 @@ public class AccountService {
     public List<Account> findAccountsByUserId(String userId) throws AccountsException {
         Optional<User> user = userRepository.findById(userId);
         if(!user.isPresent()) {
-            throw new AccountsException("Invalid User");
+            throw new AccountsException("Invalid User ID: " + userId);
         }
 
         return accountRepository.findAllByUser(user.get());
     }
 
 
-    public List<Transaction> findTransactionsByAccountId(String transactionId) throws AccountsException {
-        Optional<Account> account = accountRepository.findById(transactionId);
+    public List<Transaction> findTransactionsByAccountNumber(String accountNumber) throws AccountsException {
+        Optional<Account> account = accountRepository.findById(accountNumber);
         if(!account.isPresent()) {
-            throw new AccountsException("Invalid Account");
+            throw new AccountsException("Invalid Account Number: " + accountNumber);
         }
         return transactionRepository.findAllByCreditAccountOrDebitAccount(account.get(), account.get());
     }

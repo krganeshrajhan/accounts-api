@@ -28,6 +28,4 @@ public class User {
     @Size(min = 1, max = 200)
     private String userName;
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
-    private List<Account> accountList;
 }

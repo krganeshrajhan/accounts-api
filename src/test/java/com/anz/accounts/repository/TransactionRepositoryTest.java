@@ -18,7 +18,7 @@ public class TransactionRepositoryTest {
     @Test
     @Sql("/create_transactions.sql")
     public void givenAccountNumberReturnTransactionList() {
-        User user = new User("1", null, null);
+        User user = User.builder().userId("1").build();
         Account account1 = new Account("123456","", "", user);
         Account account2 = new Account("134567","", "", user);
         Account account3 = new Account("123534","", "", user);

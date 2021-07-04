@@ -14,7 +14,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import java.lang.reflect.Array;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -69,7 +68,7 @@ public class AccountServiceTest {
     @Test
     public void givenInvalidAccountIdRetrieveTransactionsThrowsException() {
         assertThrows(AccountsException.class, () -> {
-           accountService.findTransactionsByAccountId("123456");
+           accountService.findTransactionsByAccountNumber("123456");
         });
     }
 
@@ -93,7 +92,7 @@ public class AccountServiceTest {
                 .transactionType("Debit").valueDate(LocalDate.now()).amount(20.56).build());
         when(accountRepository.findById("123456")).thenReturn(Optional.of(account2));
         when(transactionRepository.findAllByCreditAccountOrDebitAccount(account2, account2)).thenReturn(transactions);
-        List<Transaction> transactionList = accountService.findTransactionsByAccountId("123456");
+        List<Transaction> transactionList = accountService.findTransactionsByAccountNumber("123456");
         assertEquals(2, transactionList.size());
     }
 
