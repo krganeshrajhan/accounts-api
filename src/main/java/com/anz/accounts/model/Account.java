@@ -1,12 +1,17 @@
 package com.anz.accounts.model;
 
-import lombok.Data;
+import com.sun.istack.NotNull;
+import lombok.*;
 
 import javax.persistence.*;
 
 @Entity
-@Data
+@Getter
+@Setter
+@EqualsAndHashCode
 @Table(name = "ACCOUNTS")
+@AllArgsConstructor
+@NoArgsConstructor
 public class Account {
 
     @Id
