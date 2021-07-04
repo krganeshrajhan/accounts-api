@@ -1,0 +1,112 @@
+databaseChangeLog:
+  - changeSet:
+      id: "Create Tables"
+      author: krganeshrajhan
+      changes:
+        - createTable:
+            tableName: USERS
+            columns:
+              - column:
+                  name: ID
+                  type: VARCHAR(200)
+                  autoIncrement: false
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: USER_NAME
+                  type: varchar(200)
+                  constraints:
+                    nullable: false
+        - createTable:
+            tableName: ACCOUNTS
+            columns:
+              - column:
+                  name: ACCOUNT_NUMBER
+                  type: VARCHAR(200)
+                  autoIncrement: false
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: ACCOUNT_NAME
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: ACCOUNT_TYPE
+                  type: varchar(50)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: USER_ID
+                  type: varchar(200)
+                  constraints:
+                    nullable: false
+        - createTable:
+            tableName: TRANSACTIONS
+            columns:
+              - column:
+                  name: ID
+                  type: VARCHAR(200)
+                  autoIncrement: false
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: VALUE_DATE
+                  type: date
+                  constraints:
+                    nullable: false
+              - column:
+                  name: AMOUNT
+                  type: double
+                  constraints:
+                    nullable: false
+              - column:
+                  name: TRANSACTION_TYPE
+                  type: varchar(50)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: NARRATIVE
+                  type: varchar(200)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: DEBIT_ACCOUNT
+                  type: varchar(200)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: CREDIT_ACCOUNT
+                  type: varchar(200)
+                  constraints:
+                    nullable: false
+        - addForeignKeyConstraint:
+            baseColumnNames: USER_ID
+            baseTableName: ACCOUNTS
+            constraintName: FK_ACCOUNTS_USER_ID
+            onDelete: CASCADE
+            onUpdate: CASCADE
+            referencedColumnNames: ID
+            referencedTableName: USERS
+            validate: true
+        - addForeignKeyConstraint:
+            baseColumnNames: DEBIT_ACCOUNT
+            baseTableName: TRANSACTIONS
+            constraintName: FK_TRANSACTIONS_DEBIT_ACCOUNT
+            onDelete: CASCADE
+            onUpdate: CASCADE
+            referencedColumnNames: ACCOUNT_NUMBER
+            referencedTableName: ACCOUNTS
+            validate: true
+        - addForeignKeyConstraint:
+            baseColumnNames: CREDIT_ACCOUNT
+            baseTableName: TRANSACTIONS
+            constraintName: FK_TRANSACTIONS_CREDIT_ACCOUNT
+            onDelete: CASCADE
+            onUpdate: CASCADE
+            referencedColumnNames: ACCOUNT_NUMBER
+            referencedTableName: ACCOUNTS
+            validate: true
