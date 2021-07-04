@@ -1,6 +1,7 @@
 package com.anz.accounts.model;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -12,6 +13,7 @@ import java.time.LocalDate;
 @Table(name = "TRANSACTIONS")
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class Transaction {
 
     @Id
@@ -20,7 +22,7 @@ public class Transaction {
     private String id;
 
     @Column(name = "VALUE_DATE")
-    private LocalDate valueDAte;
+    private LocalDate valueDate;
 
     @Column(name = "AMOUNT")
     private double amount;
